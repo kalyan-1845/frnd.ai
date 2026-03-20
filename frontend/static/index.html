@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>BKR — Minimal Test UI</title>
+</head>
+<body>
+  <h1>BKR Minimal UI</h1>
+  <div>
+    <textarea id="userText" rows="4" cols="50">Hello BKR, how are you?</textarea><br/>
+    <button onclick="sendChat()">Send Chat</button>
+  </div>
+  <pre id="result"></pre>
+
+  <script>
+    async function sendChat() {
+      const text = document.getElementById('userText').value;
+      const form = new FormData();
+      form.append('text', text);
+      form.append('user_id', 'localuser');
+
+      const resp = await fetch('/api/chat', { method: 'POST', body: form });
+      const data = await resp.json();
+      document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
