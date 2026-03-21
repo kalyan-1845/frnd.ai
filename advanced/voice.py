@@ -316,7 +316,7 @@ def _generate_edge_tts_audio(text: str) -> str:
             text,
             voice,
             volume="+80%",
-            rate="+0%",
+            rate="-10%",
         )
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             tmp_path = tmp_file.name
@@ -611,12 +611,12 @@ def _amplitude_monitor_thread(audio_path: str):
             
             # Calculate frame-wise amplitude
             frame_duration_ms = int(LIP_SYNC_UPDATE_INTERVAL * 1000)
-            n_frames = len(samples) // (audio.frame_rate * LIP_SYNC_UPDATE_INTERVAL)
+            n_frames = int(len(samples) / max(1, audio.frame_rate * LIP_SYNC_UPDATE_INTERVAL))
             
             if n_frames > 0:
-                frame_size = len(samples) // n_frames
+                frame_size = int(len(samples) / n_frames)
                 
-                for i in range(min(n_frames, 500)):  # Limit processing
+                for i in range(int(min(n_frames, 500))):  # Limit processing
                     if not IS_SPEAKING:
                         break
                     
@@ -1268,9 +1268,23 @@ def listen():
         
         # Reset error count on success
         _audio_error_count = 0
+        command_clean = command.strip()
+        
+        import config
+        wake_word = getattr(config, "WAKE_WORD", "").lower().strip()
+        if wake_word:
+            # Check if the wake word is present
+            if wake_word not in command_clean.lower():
+                print(f"[Voice] Ignored (Wake word '{wake_word}' not heard): {command_clean}")
+                return ""
+            # Strip the wake word so the AI doesn't process it natively
+            import re
+            command_clean = re.sub(f"(?i){re.escape(wake_word)}", "", command_clean).strip()
+            if not command_clean:
+                return "" # They just said "Hey Leo" and nothing else
             
-        print(f"You said: {command}")
-        return command.strip()
+        print(f"You said: {command_clean}")
+        return command_clean
 
     except sd.PortAudioError:
         print("[Warning] No microphone detected. Switching to text input mode.")

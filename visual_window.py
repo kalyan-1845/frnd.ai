@@ -18,7 +18,7 @@ import html
 
 import config
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-from PyQt5.QtGui import QFont, QPixmap, QTransform, QPainter, QColor, QLinearGradient
+from PyQt5.QtGui import QFont, QPixmap, QTransform, QPainter, QColor, QLinearGradient, QRadialGradient
 from PyQt5.QtWidgets import (
     QApplication,
     QGraphicsDropShadowEffect,
@@ -158,8 +158,9 @@ class AssistantWindow(QMainWindow):
         self.status_label.setStyleSheet("color: #a9b6d6;")
         self.layout.addWidget(self.status_label)
 
-        self.wave_widget = SineWaveWidget()
-        self.layout.addWidget(self.wave_widget)
+        # Infinity Core Mastered Widget
+        self.core_widget = InfinityCoreWidget()
+        self.layout.addWidget(self.core_widget, stretch=2)
 
         self.chat_area = QTextBrowser()
         self.chat_area.setOpenExternalLinks(True)
@@ -309,148 +310,13 @@ class AssistantWindow(QMainWindow):
         pass
 
     def animate(self):
-        """Main animation loop - runs every 50ms for smooth lip-sync."""
-        
-        # Get real-time lip-sync state from voice module
+        """Main animation loop - runs every 50ms."""
         lip_state = advanced.voice.get_lip_sync_state()
-        
         self.is_speaking = lip_state['is_speaking']
         self.audio_amplitude = lip_state['amplitude']
         
-        # Update viseme smoothly
-        new_target = lip_state.get('target_viseme', 'neutral')
-        if new_target != self.target_viseme:
-            self.target_viseme = new_target
-            self.viseme_transition = 0.0
-        
-        # Smooth viseme transition
-        if self.viseme_transition < 1.0:
-            self.viseme_transition = min(1.0, self.viseme_transition + 0.15)
-            if self.viseme_transition >= 1.0:
-                self.current_viseme = self.target_viseme
-        elif self.current_viseme != self.target_viseme:
-            self.current_viseme = self.target_viseme
-
-        if self.is_speaking:
-            # ==================== SPEAKING MODE ====================
-            self._set_status_text("Speaking...")
-            motion = self.motion_intensity
-            
-            # More dynamic head movement when speaking
-            self.avatar_tilt += (0.02 * motion) * self.tilt_dir
-            if self.avatar_tilt >= (0.12 * motion):
-                self.tilt_dir = -1
-            elif self.avatar_tilt <= (-0.12 * motion):
-                self.tilt_dir = 1
-            
-            # Head position drift during speech
-            self.head_pos_x += (0.3 * motion) * self.head_pos_dir_x
-            if self.head_pos_x >= (4.0 * motion):
-                self.head_pos_dir_x = -1
-            elif self.head_pos_x <= (-4.0 * motion):
-                self.head_pos_dir_x = 1
-
-            self.head_pos_y += (0.18 * motion) * self.head_pos_dir_y
-            if self.head_pos_y >= (2.5 * motion):
-                self.head_pos_dir_y = -1
-            elif self.head_pos_y <= (-2.5 * motion):
-                self.head_pos_dir_y = 1
-            
-            # Subtle vertical head movement
-            self.head_tilt_y += (0.15 * motion) * self.head_tilt_dir_y
-            if self.head_tilt_y >= (2.8 * motion):
-                self.head_tilt_dir_y = -1
-            elif self.head_tilt_y <= (-2.8 * motion):
-                self.head_tilt_dir_y = 1
-            
-            # Depth movement when speaking
-            self.avatar_depth += (0.03 * motion) * self.depth_dir
-            if self.avatar_depth >= (2.2 * motion):
-                self.depth_dir = -1
-            elif self.avatar_depth <= (-2.2 * motion):
-                self.depth_dir = 1
-            
-            # Breathing when speaking
-            self.breathe_phase += self.breathe_speed
-            self.avatar_scale = 1.0 + (math.sin(self.breathe_phase) * (0.012 * motion))
-            
-            # Eye movement during speech (looking around slightly)
-            self.eye_offset_x = int(math.sin(self.breathe_phase * 2) * 1)
-            self.eye_offset_y = int(math.cos(self.breathe_phase * 1.5) * 0.5)
-            
-            # Choose frame based on lip-sync
-            if self.lip_sync_enabled and self.current_viseme:
-                # Use viseme frame for realistic lip-sync
-                self.update_avatar(f"viseme_{self.current_viseme}", mood="speaking", 
-                                  custom_viseme=self.current_viseme)
-            else:
-                # Fallback to basic speaking frames
-                frame_name = f"speak_{self.current_speak_frame}"
-                self.update_avatar(frame_name)
-                self.current_speak_frame = 2 if self.current_speak_frame == 1 else 1
-            
-            return
-
-        # ==================== IDLE MODE ====================
-        self._set_status_text("Listening...")
-        self.current_speak_frame = 1
-        self.idle_tick += 1
-        
-        # Gentle idle head movement
-        motion = self.motion_intensity
-        self.avatar_tilt += (0.005 * motion) * self.tilt_dir
-        if self.avatar_tilt >= (0.06 * motion):
-            self.tilt_dir = -1
-        elif self.avatar_tilt <= (-0.06 * motion):
-            self.tilt_dir = 1
-        
-        # Very subtle head drift
-        self.head_pos_x += (0.1 * motion) * self.head_pos_dir_x
-        if self.head_pos_x >= (2.0 * motion):
-            self.head_pos_dir_x = -1
-        elif self.head_pos_x <= (-2.0 * motion):
-            self.head_pos_dir_x = 1
-
-        self.head_pos_y += (0.04 * motion) * self.head_pos_dir_y
-        if self.head_pos_y >= (1.2 * motion):
-            self.head_pos_dir_y = -1
-        elif self.head_pos_y <= (-1.2 * motion):
-            self.head_pos_dir_y = 1
-        
-        # Gentle breathing in idle
-        self.breathe_phase += self.breathe_speed * 0.4
-        self.avatar_scale = 1.0 + (math.sin(self.breathe_phase) * (0.006 * motion))
-        
-        # Very subtle depth drift
-        self.avatar_depth = math.sin(self.breathe_phase * 0.25) * (0.45 * motion)
-
-        # Handle blinking
-        if self.blink_ticks > 0:
-            self.update_avatar("blink")
-            self.blink_ticks -= 1
-            return
-
-        if self.idle_tick >= self.next_blink_tick:
-            self.blink_ticks = 2
-            self.idle_tick = 0
-            self.next_blink_tick = random.randint(18, 45)
-            self.update_avatar("blink")
-            return
-
-        # Brief expression hold driven by emotion tag in assistant output.
-        if self.expression_ticks > 0:
-            self.expression_ticks -= 1
-            self.update_avatar(self.expression_state)
-            return
-
-        # Idle frame toggle
-        self.idle_frame_toggle = not self.idle_frame_toggle
-        
-        # Use breathing frame occasionally
-        if self.idle_frame_toggle and random.random() < 0.2:
-            self.update_avatar("idle_breath")
-        else:
-            self.update_avatar("idle_shift" if self.idle_frame_toggle else "idle")
+        if hasattr(self, "core_widget"):
+            self.core_widget.update_core()
 
     def _set_status_text(self, text: str):
         self.status_label.setText(text)
@@ -540,69 +406,155 @@ class AssistantWindow(QMainWindow):
         self.chat_area.ensureCursorVisible()
 
 
-class SineWaveWidget(QWidget):
+class Particle:
+    """Represents a single energy spark radiating from the Infinity Core."""
+    def __init__(self, x, y, angle, speed, color):
+        self.x = x
+        self.y = y
+        self.angle = angle
+        self.speed = speed
+        self.life = 1.0  # 1.0 to 0.0
+        self.decay = random.uniform(0.015, 0.035)
+        self.color = color
+
+    def update(self):
+        self.x += math.cos(self.angle) * self.speed
+        self.y += math.sin(self.angle) * self.speed
+        self.life -= self.decay
+        return self.life > 0
+
+class InfinityCoreWidget(QWidget):
+    """
+    Infinity Core Mastered UI - A futuristic energy sphere with sound-reactive particles.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumHeight(150)
-        self.time_step = 0
-        self.amplitude_multiplier = 0.1
+        self.setMinimumHeight(450)
+        self.time_step = 0.0
+        self.amplitude_multiplier = 0.05
+        self.particles = []
         
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_wave)
-        self.timer.start(30)
-
-    def update_wave(self):
-        self.time_step += 0.15
+        # Performance: Pre-calculate colors for gradients
+        self.colors = [
+            QColor(0, 242, 255, 180),   # Cyan
+            QColor(112, 0, 255, 140),   # Purple
+            QColor(0, 124, 255, 100),   # Blue
+            QColor(255, 255, 255, 200)  # White core
+        ]
         
-        # Pull amplitude from global voice state if speaking, otherwise small idle waves
+    def update_core(self):
+        self.time_step += 0.2
         import advanced.voice
         lip_state = advanced.voice.get_lip_sync_state()
-        target_amp = lip_state['amplitude'] * 2.0 if lip_state['is_speaking'] else 0.1
+        target_amp = lip_state['amplitude'] if lip_state['is_speaking'] else 0.04
         
-        # Smoothly interpolate amplitude
+        # Smooth physics
         self.amplitude_multiplier += (target_amp - self.amplitude_multiplier) * 0.2
+        
+        # Spawn particles when amplitude is high
+        if target_amp > 0.08 and len(self.particles) < 40:
+            for _ in range(int(target_amp * 8)):
+                angle = random.uniform(0, 2 * math.pi)
+                speed = random.uniform(2, 6)
+                color = random.choice(self.colors)
+                w, h = self.width(), self.height()
+                self.particles.append(Particle(w/2, h/2, angle, speed, color))
+        
+        # Update existing particles
+        self.particles = [p for p in self.particles if p.update()]
         self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        width = self.width()
-        height = self.height()
-        mid_y = height / 2
+        w, h = self.width(), self.height()
+        cx, cy = w / 2, h / 2
 
-        # Draw background
-        painter.fillRect(0, 0, width, height, QColor("#15171d"))
+        # 1. Deep space background
+        painter.fillRect(0, 0, w, h, QColor(10, 12, 18))
 
-        # Base properties
-        base_amplitude = (height * 0.4) * self.amplitude_multiplier
-        frequency = 0.02
+        # Reset to standard blending for all core drawing
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+        # 2. Always-visible ambient glow (even when idle)
+        ambient_r = min(w, h) * 0.35
+        ambient_grad = QRadialGradient(cx, cy, ambient_r)
+        ambient_grad.setColorAt(0.0, QColor(0, 80, 180, 50))
+        ambient_grad.setColorAt(0.5, QColor(50, 0, 120, 25))
+        ambient_grad.setColorAt(1.0, QColor(0, 0, 0, 0))
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(ambient_grad)
+        painter.drawEllipse(int(cx - ambient_r), int(cy - ambient_r), int(ambient_r * 2), int(ambient_r * 2))
+
+        # 3. Infinity Core: Multi-layered radial gradient orb
+        # Base radius is always clearly visible (minimum ~80px), and grows with amplitude
+        base_radius = max(60, (min(w, h) * 0.12) + (min(w, h) * 0.25 * self.amplitude_multiplier))
         
-        # Defines phase offsets, frequencies, and colors for 3 overlapping waves
-        waves = [
-            {"phase": self.time_step, "freq": frequency, "amp": base_amplitude, "color": QColor(63, 112, 255, 180)},
-            {"phase": self.time_step * 1.2, "freq": frequency * 1.5, "amp": base_amplitude * 0.7, "color": QColor(118, 167, 255, 120)},
-            {"phase": self.time_step * 0.8, "freq": frequency * 0.8, "amp": base_amplitude * 1.2, "color": QColor(40, 70, 180, 200)}
+        # Layer definitions: outermost to innermost
+        core_layers = [
+            {"scale": 2.5, "r": 0,   "g": 60,  "b": 200, "a": 30,  "rot_speed": 0.5},
+            {"scale": 1.8, "r": 40,  "g": 0,   "b": 160, "a": 55,  "rot_speed": -0.7},
+            {"scale": 1.3, "r": 0,   "g": 180, "b": 255, "a": 80,  "rot_speed": 1.1},
+            {"scale": 0.8, "r": 80,  "g": 140, "b": 255, "a": 120, "rot_speed": 0.3},
+            {"scale": 0.4, "r": 200, "g": 230, "b": 255, "a": 200, "rot_speed": 0.0},
         ]
 
-        for wave in waves:
-            path = []
-            for x in range(0, width + 10, 10):
-                # Calculate y position using sine wave
-                y = mid_y + math.sin(x * wave["freq"] + wave["phase"]) * wave["amp"]
-                # Taper the ends to 0 amplitude
-                envelope = math.sin((x / width) * math.pi)
-                y = mid_y + (y - mid_y) * envelope
-                path.append((x, y))
+        for layer in core_layers:
+            # Pulsing radius
+            rot = layer["rot_speed"]
+            pulse = math.sin(self.time_step * rot if rot != 0 else self.time_step * 0.5) * 8
+            r = max(4, base_radius * layer["scale"] + pulse * max(0.3, self.amplitude_multiplier))
+            
+            grad = QRadialGradient(cx, cy, r)
+            grad.setColorAt(0.0, QColor(layer["r"], layer["g"], layer["b"], layer["a"]))
+            grad.setColorAt(1.0, QColor(layer["r"], layer["g"], layer["b"], 0))
+            
+            painter.setBrush(grad)
+            painter.setPen(Qt.NoPen)
+            painter.drawEllipse(int(cx - r), int(cy - r), int(r * 2), int(r * 2))
 
-            # Draw the wave line
-            pen = painter.pen()
-            pen.setColor(wave["color"])
-            pen.setWidthF(2.5)
-            painter.setPen(pen)
+        # 4. Inner white-hot core (always visible)
+        core_r = base_radius * 0.15
+        inner_grad = QRadialGradient(cx, cy, core_r)
+        inner_grad.setColorAt(0.0, QColor(255, 255, 255, 220))
+        inner_grad.setColorAt(0.4, QColor(180, 220, 255, 150))
+        inner_grad.setColorAt(1.0, QColor(100, 180, 255, 0))
+        painter.setBrush(inner_grad)
+        painter.drawEllipse(int(cx - core_r), int(cy - core_r), int(core_r * 2), int(core_r * 2))
 
-            for i in range(len(path) - 1):
-                painter.drawLine(path[i][0], int(path[i][1]), path[i+1][0], int(path[i+1][1]))
+        # 5. Particles (Additive glow)
+        if self.particles:
+            painter.setCompositionMode(QPainter.CompositionMode_Plus)
+            for p in self.particles:
+                c = QColor(p.color)
+                c.setAlpha(max(0, min(255, int(255 * p.life))))
+                painter.setPen(Qt.NoPen)
+                painter.setBrush(c)
+                size = max(2, int(6 * p.life))
+                painter.drawEllipse(int(p.x - size/2), int(p.y - size/2), size, size)
+            painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+        # 6. Neural Mesh Lines (only when active)
+        if self.amplitude_multiplier > 0.08:
+            line_alpha = min(80, int(self.amplitude_multiplier * 400))
+            painter.setPen(QColor(0, 242, 255, line_alpha))
+            path_points = 8
+            for i in range(path_points):
+                angle = (i / path_points) * 2 * math.pi + self.time_step * 0.2
+                x1 = cx + math.cos(angle) * (base_radius * 0.6)
+                y1 = cy + math.sin(angle) * (base_radius * 0.6)
+                x2 = cx + math.cos(angle) * (base_radius * (1.5 + self.amplitude_multiplier * 2))
+                y2 = cy + math.sin(angle) * (base_radius * (1.5 + self.amplitude_multiplier * 2))
+                painter.drawLine(int(x1), int(y1), int(x2), int(y2))
+
+        # 7. Subtle orbital ring
+        ring_r = base_radius * 1.6
+        ring_alpha = 25 + int(self.amplitude_multiplier * 60)
+        painter.setPen(QColor(0, 200, 255, ring_alpha))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawEllipse(int(cx - ring_r), int(cy - ring_r), int(ring_r * 2), int(ring_r * 2))
+
 
 
 def run_visual_window(queue=None):

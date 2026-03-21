@@ -681,6 +681,11 @@ def start_assistant():
         subprocess.run(["powershell", "-Command", "$vol = New-Object -ComObject WScript.Shell; 1..50 | ForEach-Object { $vol.SendKeys([char]175) }"], capture_output=True, timeout=5)
     except Exception: pass
     print("\n" + "=" * 60 + f"\n  {config.ASSISTANT_NAME} — SYSTEM ONLINE\n" + "=" * 60)
+    
+    # Start zero-latency face emotion tracker
+    from core.vision_tracker import start_vision_tracker
+    start_vision_tracker()
+    
     threading.Thread(target=voice_listener_thread, daemon=True).start()
     threading.Thread(target=proactive_agent_thread, daemon=True).start()
     threading.Thread(target=goal_check_in_thread, args=(memory,), daemon=True).start()

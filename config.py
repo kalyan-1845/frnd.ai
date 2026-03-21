@@ -22,7 +22,7 @@ ASSISTANT_GREETINGS = [
 
 DEFAULT_USER_NAME = "Kalyan"
 DEFAULT_USER_ROLE = "student"
-ASSISTANT_VOICE_EN = "en-US-AriaNeural"
+ASSISTANT_VOICE_EN = "en-IN-NeerjaNeural"
 ASSISTANT_PRIMARY_LANGUAGE = "english"
 FORCE_ENGLISH_ONLY = True
 ASSISTANT_RELATION_STYLE = "teacher"
@@ -56,7 +56,7 @@ VOICE_DEDUP_WINDOW_SECONDS = 2.0
 VOICE_COMMAND_DEDUP_SECONDS = 3.0
 
 # Desktop companion UI
-GUI_ENABLED = False
+GUI_ENABLED = True
 GUI_WINDOW_ONLY = True
 DESKTOP_COMPANION_MODE = False
 DESKTOP_COMPANION_CORNER = "bottom_right"
@@ -73,9 +73,9 @@ AUTO_START_WITH_WINDOWS = False
 # LLM Configuration
 LLM_PRIMARY_MODEL = "llama3"          # English-first local model
 LLM_FALLBACK_MODEL = "bkr2"           # Fallback model (local)
-LLM_MAX_TOKENS = 256                  # Max response tokens
-LLM_TEMPERATURE = 0.45                # Lower temp for faster, more stable replies
-LLM_CONTEXT_MESSAGES = 4              # Fewer history messages for lower latency
+LLM_MAX_TOKENS = 64                   # Max response tokens restricted for extreme speed
+LLM_TEMPERATURE = 0.3                 # Lower temp for faster, highly predictable, smart replies
+LLM_CONTEXT_MESSAGES = 2              # Fewer history messages for lower processing latency
 LLM_CACHE_ENABLED = True             # Enable caching for faster responses
 
 # Google Gemini API (best fallback for Telugu)
@@ -115,7 +115,7 @@ TUTOR_MAX_STEPS = 5
 
 # ========================= SPEECH STACK =========================
 # STT providers: "sphinx_local", "google_free", "openai_whisper", "deepgram", "vosk_local"
-STT_PROVIDER = "google_free"
+STT_PROVIDER = "deepgram"
 STT_ALLOW_CLOUD_FALLBACK = True
 STT_ACTIVE_LANGUAGE = "en-in"  # en-in or en-us
 STT_GOOGLE_LANGUAGE_CANDIDATES = [
