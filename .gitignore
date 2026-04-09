@@ -17,3 +17,10 @@ build
 *.pyd
 *.so
 *.dll
+
+# Environment variables
+.env
+.env.local
+temp/
+tmp/
+*.log

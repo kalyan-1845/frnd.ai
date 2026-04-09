@@ -1,9 +1,13 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Assistant Identity
 ASSISTANT_NAME = "Leo"
 CURRENT_ASSISTANT = ASSISTANT_NAME
-ASSISTANT_TAG = "BKR 2.0"
+ASSISTANT_TAG = "Frnd.AI (BKR 2.0)"
 ASSISTANT_SHORT_NAME = "Leo"
 
 # Startup Greetings (randomly selected on boot)
@@ -79,11 +83,11 @@ LLM_CONTEXT_MESSAGES = 2              # Fewer history messages for lower process
 LLM_CACHE_ENABLED = True             # Enable caching for faster responses
 
 # Google Gemini API (best fallback for Telugu)
-GEMINI_API_KEY = "AIzaSyAxepS4QOXM6U1NSCgWkX1trUgh4W4BKes"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Groq API (super fast Llama-3 70B)
 # Get free key from https://console.groq.com/keys
-GROQ_API_KEY = "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"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = "llama-3.1-8b-instant"
 GROQ_MAX_TOKENS = 512
 LLM_PREFER_GROQ_FOR_CHAT = True
@@ -100,7 +104,7 @@ WELLBEING_REMINDER_PROBABILITY = 0.08
 VOICE_TASK_FOLLOWUP_ENABLED = False
 
 # OpenAI API (for ChatGPT fallback)
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # English learning automation
 ENGLISH_COACH_ENABLED = True
@@ -125,7 +129,7 @@ STT_GOOGLE_LANGUAGE_CANDIDATES = [
 OPENAI_STT_MODEL = "whisper-1"
 OPENAI_STT_LANGUAGE = ""
 OPENAI_STT_PROMPT = "Multilingual conversational speech for a global AI assistant."
-DEEPGRAM_API_KEY = "20366a653ea6495ef7cf8c0afaff70c0e24663b5"
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY", "")
 DEEPGRAM_MODEL = "nova-2"
 DEEPGRAM_LANGUAGE = "en-IN"
 VOSK_MODEL_DIR = os.path.join(os.path.dirname(__file__), "assets", "models", "vosk")
@@ -138,7 +142,7 @@ VOSK_MODEL_PATHS = {
 # TTS providers: "pyttsx3", "edge_tts", "elevenlabs", "piper_local"
 TTS_PROVIDER = "edge_tts"
 TTS_ALLOW_CLOUD_FALLBACK = True
-ELEVENLABS_API_KEY = "e9742f4915ecd5d453aaa672d9e4f1284bde9598268f48f7237c4a5b34d1f780"
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 ELEVENLABS_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"
 ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
 ELEVENLABS_STABILITY = 0.35

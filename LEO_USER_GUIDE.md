@@ -1,8 +1,7 @@
 # 🤖 Leo AI Assistant — Complete User Guide
 
-> **Version**: BKR 2.0 (Frnd.AI)
-> **Wake Word**: `Hey Leo`
-> **Author**: Kalyan
+> **Project**: Frnd.AI (Leo)
+> **Version**: BKR 2.0
 
 ---
 

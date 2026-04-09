@@ -30,3 +30,4 @@ pocketsphinx
 vosk
 piper-tts
 yt-dlp
+python-dotenv
