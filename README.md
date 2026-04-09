@@ -1,77 +1,120 @@
-## BKR 2.0 Global Multilingual Assistant
+# 🤖 Frnd.AI: Leo Assistant (BKR 2.0)
 
-This build is configured as a **window-only multilingual assistant** with:
-- same-language replies by default
-- grounded world-knowledge retrieval for factual questions
-- adaptive teaching for coding, AI, language learning, and general study
-- emotional check-ins without repetitive filler
-- local Ollama runtime with network-backed speech/retrieval support
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Security: Local-First](https://img.shields.io/badge/Security-Local--First-brightgreen.svg)](SECURITY.md)
+[![Python: 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+[![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D6.svg)](https://www.microsoft.com/windows)
 
-## Quick Start
+**Frnd.AI (Leo)** is a premium, multilingual AI assistant designed for Windows. It provides a seamless, local-first experience with a futuristic visual interface, advanced voice control, and deep system integration.
 
-1. Use virtualenv Python:
-`.\.venv\Scripts\python.exe --version`
+> [!TIP]
+> **Total Privacy**: All core processing (Speech-to-Text, LLM, and Text-to-Speech) runs locally on your machine by default.
 
-2. Install dependencies:
-`.\.venv\Scripts\python.exe -m pip install -r requirements.txt`
+---
 
-3. Start local LLM server:
-`ollama serve`
+## ✨ Key Features
 
-4. Verify runtime health:
-`.\.venv\Scripts\python.exe doctor.py --fix-avatar`
+### 🎙️ Advanced Multilingual Voice
+- **Local STT/TTS**: Powered by Vosk and Piper for high-speed, offline speech processing.
+- **Deepgram Integration**: Optional cloud-backed speech processing for enterprise-grade accuracy.
+- **Auto-Language Detection**: Supports English, Hindi, Telugu, and more.
 
-5. Launch:
-- one-click: `run_agent.bat`
-- manual: `.\.venv\Scripts\python.exe main.py`
+### 🧠 Intelligent Core
+- **Ollama Powered**: Uses LLaMA 3 (and other models) for grounded reasoning.
+- **Long-Term Memory**: Persistent memory across sessions using ChromaDB vector storage.
+- **Web Grounding**: Real-time factual retrieval via DuckDuckGo and Wikipedia.
 
-## Assistant Commands
+### 🖥️ Deep System Control
+- **Application Logic**: Open any app, manage processes, and take screenshots.
+- **Power Management**: Lock, sleep, shutdown, and restart with voice commands.
+- **Environment Control**: Adjust brightness, volume, and Night Light settings.
 
-- `teach me <topic>`
-- `start lesson on <topic>`
-- `next step`
-- `repeat step`
-- `quiz me`
-- `lesson status`
-- `stop lesson`
-- `/speechlang en|hi|te|auto`
-- `start english coach`
-- `next lesson`
-- `daily session`
-- `quiz me`
-- `coach status`
-- `set daily target 45`
+### 📱 Communication & Productivity
+- **WhatsApp & Gmail**: Send messages and compose emails via voice.
+- **File Management**: Organize, create, zip, and find files effortlessly.
+- **Adaptive Teaching**: Built-in tutors for coding, language learning, and general study.
 
-The default learning mode is the general subject tutor. The English coach remains available on demand for a fixed English curriculum.
+### 🎭 Vision & Emotion
+- **Emotion Tracking**: Analyzes facial expressions via webcam to adapt tone and response.
+- **Infinity Core UI**: A gorgeous, reactive visual interface with high-end animations.
 
-## Local Speech Bootstrap
+---
 
-Populate the local open-source speech stack with:
-`.\.venv\Scripts\python.exe scripts\bootstrap_local_models.py --languages en hi te --clean-archives`
+## 🚀 Quick Start
 
-This downloads Vosk STT models and Piper TTS voices into `assets/models`.
+### 📋 Prerequisites
+- **OS**: Windows 10/11
+- **Python**: 3.10 or higher
+- **Ollama**: [Download Ollama](https://ollama.com/) and run `ollama pull llama3`.
 
-## Runtime Notes
+### 🛠️ Installation
 
-- LLM: local Ollama first (`llama3`, fallback `bkr2`), with optional cloud fallback if keys are configured.
-- STT defaults to `vosk_local` with local model auto-discovery.
-- TTS defaults to `piper_local` with local voice auto-selection and `pyttsx3` fallback.
-- Global knowledge grounding uses DuckDuckGo Instant Answer and Wikipedia summaries.
-- Structured tutoring uses a persistent lesson session so `next step`, `quiz me`, and follow-up questions stay on the same topic.
-- Grounded answers now show source cards inside the chat window.
+1. **Clone & Setup Environment**:
+   ```powershell
+   git clone https://github.com/kalyan-1845/frnd.ai.git
+   cd frnd.ai
+   python -m venv .venv
+   .\.venv\Scripts\activate
+   ```
 
-## Runtime Stability Settings
+2. **Install Dependencies**:
+   ```powershell
+   pip install -r requirements.txt
+   pip install chromadb opencv-python mediapipe pygame
+   ```
 
-- Voice echo suppression is enabled.
-- Duplicate command replay suppression is enabled.
-- Default UI mode is window-only assistant mode (no desktop companion).
-- Windows auto-start is disabled by default.
+3. **Bootstrap Local Models**:
+   ```powershell
+   python scripts\bootstrap_local_models.py --languages en hi te --clean-archives
+   ```
 
-## Local-Only Profile
+### 🏃 Running Leo
 
-If you want a stricter open-source/local-only runtime, switch these settings in [config.py](/c:/Users/prsnl/OneDrive/Desktop/ai-assistant%20-%20Copy/config.py):
-- `OPEN_SOURCE_MODE = True`
-- `STT_PROVIDER = "sphinx_local"` or `STT_PROVIDER = "vosk_local"` after installing a Vosk model
-- `TTS_PROVIDER = "pyttsx3"` or `TTS_PROVIDER = "piper_local"` after adding a Piper voice model
+- **One-Click Start**: Run `run_agent.bat`.
+- **Manual Start**: 
+  ```powershell
+  python main.py
+  ```
 
-This removes hosted LLM fallback, but multilingual speech quality will depend on the local models you install.
+---
+
+## 🎤 Command Highlights
+
+| Category | Commands |
+| :--- | :--- |
+| **Messaging** | `"Hey Leo, send WhatsApp to Ravi saying See you at 5"` |
+| **System** | `"Hey Leo, set brightness to 50"`, `"Hey Leo, system status"` |
+| **Files** | `"Hey Leo, create folder 'Projects' on Desktop"` |
+| **Learning** | `"Hey Leo, teach me about Quantum Computing"`, `"Quiz me"` |
+| **Research** | `"Hey Leo, who is Albert Einstein?"` |
+
+---
+
+## 🏗️ Architecture
+
+- **`main.py`**: Entry point and central orchestration loop.
+- **`core/`**: High-level logic handlers for memory, tools, and LLM communication.
+- **`backend/`**: Low-level system integrations and automation scripts.
+- **`frontend/`**: Visual assets and the Infinity Core UI implementation.
+- **`layers/`**: Abstracted logic layers for better modularity.
+
+---
+
+## 🛡️ Security & Privacy
+
+Privacy is not an option; it's a feature. Leo is designed to work entirely offline if desired.
+- **No Telemetry**: We don't track your usage or collect your data.
+- **Local Vectors**: Your long-term memory is stored locally in `nova_memory.db`.
+- **Camera Privacy**: Webcam emotion tracking runs locally and never uploads images.
+
+See [SECURITY.md](SECURITY.md) for more details.
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+*Developed with ❤️ by **Kalyan** — Aiming to build the most helpful local assistant.*
