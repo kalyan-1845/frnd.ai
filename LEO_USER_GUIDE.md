@@ -31,7 +31,7 @@
 
 ### Step 1: Install Dependencies
 ```bash
-cd "ai-assistant - Copy"
+cd "Ai-assistant-Dev"
 pip install -r requirements.txt
 ```
 
